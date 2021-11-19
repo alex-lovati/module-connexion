@@ -19,16 +19,18 @@ if (isset($_REQUEST['login'], $_REQUEST['prenom'], $_REQUEST['nom'], $_REQUEST['
   $password = stripslashes($_REQUEST['password']);
   $password = mysqli_real_escape_string($conn, $password);
   //requéte SQL + mot de passe crypté
-    $query = "INSERT into `utilisateurs` (login, prenom, nom, password)
+    $query = "INSERT into utilisateurs (login, prenom, nom, password)
             VALUES ('$login', '$prenom', '$nom', '".hash('sha256', $password)."')";
   // Exécuter la requête sur la base de données
     $res = mysqli_query($conn, $query);
     if($res){
+      
         echo "<div class='sucess'>
             <h3>Vous êtes inscrit avec succès.</h3>
             <p>Cliquez ici pour vous <a href='connexion.php'>connecter</a></p>
         </div>";
     }
+    
 }else{
 ?>
 <form class="box" action="" method="post">
