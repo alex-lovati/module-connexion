@@ -12,3 +12,7 @@
 header{
   background-color: black;
 }
+body{
+  background-image: url(../module-connexion/image/citation_fond.jpg);
+  background-attachment: scroll;
+}
