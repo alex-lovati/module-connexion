@@ -1,0 +1,14 @@
+#lehaut{
+    display: flex;
+    justify-content: center;
+    padding-top: 30px;
+    text-decoration: none;
+  }
+#conninscription{
+  display: flex;
+  justify-content: right;
+  text-decoration: none;
+}
+header{
+  background-color: black;
+}

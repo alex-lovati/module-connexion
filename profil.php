@@ -5,25 +5,32 @@
 </head>
 <body>
 <?php
-require('index.php');
+// Informations d'identification
+define('DB_SERVER', 'localhost');
+define('DB_USERNAME', 'root');
+define('DB_PASSWORD', '');
+define('DB_NAME', 'moduleconnexion');
+
+// Connexion à la base de données MySQL 
+$conn = mysqli_connect(DB_SERVER, DB_USERNAME, DB_PASSWORD, DB_NAME);
+
+// Vérifier la connexion
+if($conn === false){
+    die("ERREUR : Impossible de se connecter. " . mysqli_connect_error());
+}
 if (isset($_REQUEST['login'], $_REQUEST['prenom'], $_REQUEST['nom'], $_REQUEST['password'])){
-  // récupérer le nom d'utilisateur et supprimer les antislashes ajoutés par le formulaire
   $login = stripslashes($_REQUEST['login']);
   $login = mysqli_real_escape_string($conn, $login); 
-  // récupérer l'email et supprimer les antislashes ajoutés par le formulaire
   $prenom = stripslashes($_REQUEST['prenom']);
   $prenom = mysqli_real_escape_string($conn, $prenom);
   $nom = stripslashes($_REQUEST['nom']);
   $nom = mysqli_real_escape_string($conn, $nom);
-  // récupérer le mot de passe et supprimer les antislashes ajoutés par le formulaire
   $password = stripslashes($_REQUEST['password']);
   $password = mysqli_real_escape_string($conn, $password);
   $id='id';
-  //requéte SQL + mot de passe crypté
     $query = "UPDATE utilisateurs
             SET login = '$login', prenom = '$prenom', nom = '$nom', password = '$password'
             WHERE id=$id";
-  // Exécuter la requête sur la base de données
     $res = mysqli_query($conn, $query);
     if($res){
         echo "<div class='sucess'>
