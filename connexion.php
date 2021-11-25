@@ -1,66 +1,167 @@
 <?php
-
 session_start();
 
-// Informations d'identification
+error_reporting(E_ALL);
+ini_set('display_errors', '1');
+
 define('DB_SERVER', 'localhost');
 define('DB_USERNAME', 'root');
 define('DB_PASSWORD', '');
 define('DB_NAME', 'moduleconnexion');
+$mysqli = mysqli_connect(DB_SERVER, DB_USERNAME, DB_PASSWORD, DB_NAME);
 
-// Connexion à la base de données MySQL 
-$conn = mysqli_connect(DB_SERVER, DB_USERNAME, DB_PASSWORD, DB_NAME);
-
-// Vérifier la connexion
-if($conn === false){
+if($mysqli === false){
     die("ERREUR : Impossible de se connecter. " . mysqli_connect_error());
 }
+if(isset($_POST["submit"])) { 
+    $login = stripslashes($_REQUEST['login']);
+    $login = mysqli_real_escape_string($mysqli, $login); 
+    $password = stripslashes($_REQUEST['password']);
+    $password = mysqli_real_escape_string($mysqli, $password);
+            $requete = mysqli_query($mysqli,"SELECT login, password FROM utilisateurs WHERE login = '".$login."' and password='".hash('sha256', $password)."'");
+            $row = mysqli_fetch_assoc($requete); 
 
-if(isset($_POST['submit'])) {
-    if(empty($_POST['login'])) {
-        echo "Le champ Pseudo est vide.";
-    } else {
-        if(empty($_POST['password'])) {
-            echo "Le champ Mot de passe est vide.";
+            
+
+// Validation du formulaire
+if (isset($_POST['login']) &&  isset($_POST['password'])) {
+    foreach ($utilisateurs as $utilisateur) {
+        if (
+            $utilisateur['login'] === $_POST['login'] &&
+            $utilisateur['password'] === $_POST['password']
+        ) {
+            $loggedUser = [
+                'login' => $utilisateur['login'],
+            ];
         } else {
-            $login = htmlentities($_POST['login'],);
-            $password = htmlentities($_POST['password']);
-            $mysqli = mysqli_connect('localhost', 'root', '', 'moduleconnexion');
-            if(!$mysqli){
-                echo "Erreur de connexion à la base de données.";
-            } 
-            else {
-                $Requete = mysqli_query($mysqli,"SELECT * FROM utilisateurs WHERE login = '".$login."' and password='".hash('sha256', $password)."'");
-                if(mysqli_num_rows($Requete) == 0) {
-                    echo "Le pseudo ou le mot de passe est incorrect, le compte n'a pas été trouvé.";
-                }  
-                if($login=="admin"and $password=="admin"){
-                  $_SESSION['login'] = $login;
-                    header("location: admin.php");
-                    echo "Vous êtes à présent connecté !";    
-            }
-            else {
-                    $_SESSION['login'] = $login;
-                    header("location: profil.php");
-                    echo "Vous êtes à présent connecté !";
-                }
-            }
+            $errorMessage = sprintf('Les informations envoyées ne permettent pas de vous identifier : (%s/%s)',
+                $_POST['login'],
+                $_POST['password']);
         }
     }
+    var_dump($loggedUser);
 }
-?>
-<!DOCTYPE html>
-<html>
-<head>
-  <link rel="stylesheet" href="style.css" />
-</head>
-<body>
-<form class="box" action="" method="post" name="login">
-<h1 class="box-title">Connexion</h1>
-<input type="text" class="box-input" name="login" placeholder="Login">
-<input type="password" class="box-input" name="password" placeholder="Mot de passe">
-<input type="submit" value="Connexion " name="submit" class="box-button">
-<p class="box-register">Vous êtes nouveau ici? <a href="inscription.php">S'inscrire</a></p>
+}
+if(!isset($loggedUser)): ?>
+<form action="index.php" method="post">
+    <!-- si message d'erreur on l'affiche -->
+    <?php if(isset($errorMessage)) : ?>
+        <div class="alert alert-danger" role="alert">
+            <?php echo $errorMessage; ?>
+        </div>
+    <?php endif; ?>
+    <div class="mb-3">
+        <label for="login" class="header_a">login</label>
+        <input type="login" class="header_a" name="login" placeholder="login">
+        <div>Le login utilisé lors de la création de compte.</div>
+    </div>
+    <div class="mb-3">
+        <label for="password" class="header_a">Mot de passe</label>
+        <input type="password" class="header_a" id="password" name="password">
+    </div>
+    <button type="submit" class="box_button">Envoyer</button>
 </form>
-</body>
+<!-- 
+    Si utilisateur/trice bien connectée on affiche un message de succès
+-->
+<?php else: ?>
+    <div class="alert alert-success" role="alert">
+        Bonjour <?php echo $loggedUser['login']; ?> et bienvenue sur le site !
+    </div>
+<?php endif; ?>
+
+<?php
+/*
+form method post; action"";
+select => fetch =>count si 0=> good si1=>not good
+session['login']=$POST['login']
+c'est connecté normalement
+
+suite 
+
+connexion bdd = bon
+verifier si le login est present en bdd
+$login = $POST["user];
+$password=$POST["password;]
+if(isset $POST["login"] et $POST["password"]){      (en plus pour verifier)
+    echo ok ?
+}
+    if(isset($login)){    c'est mieux de mettre seulement isset login plutot que isset login ET isset mdp, permet d'avoir msg d'erreur plus clair
+        $req="SELECT * WHERE login=$login";
+        $req=mysqli_query($req);
+        $result=fetch assoc         (fetch pour que ça donne les numeros, fetch assoc pour les noms)
+        if(count($result=0)){
+            $mdpBDD=$result[0]["mdp]
+        }
+        if($mdp==mdpBDD){
+            $session["user]=$login
+            (on peut mettre d'autre variable de session comme $session["nom]=$nom)
+        }
+        else{
+            wrong mdp
+        }
+        else{
+            wrong login
+        }
+        }
+    }
+
+*/
+?>
+<html>
+    <head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="style.css" />
+    </head>
+    <body>
+        <header id="header_la">     
+            <h1 id="h1">Module de connexion</h1>
+            <nav id="header_nav">
+        <?php
+        if (!isset($_SESSION["login"])){?>
+            <!-- <button type= 'submit' name ='connexion' value = 'connexion' class='header_a'>Connexion</button> -->
+            <form method = 'POST' action = 'index.php'>   
+            <button type= 'submit' name ='profil' value = 'profil' class='header_a'>Profil</button>
+            <button type= 'submit' name ='deconnexion' value = 'deconnexion' class='header_a'>Déconnexion</button>
+                </form>
+        <?php }else { ?>
+            <li><p class='header_a'><a href='connexion.php'>Connexion</a></p></li>
+            <li><p class='header_a'><a href='inscription.php'>Inscription</a></p></li>
+            
+        
+        <?php } if(isset($_POST["deconnexion"])){
+        session_destroy() ;
+        header('location:index.php');
+        } 
+        ?>
+                <!-- <ul id="header_ul">
+                    <li><a class="header_a" href="index.php">Accueil</a>
+                    <li><a class="header_a" name="inscription" href="inscription.php">Inscription</a></li>
+                    <li><a class="header_a" name="connexion" href="connexion.php">Connexion</a></li> 
+                    <li><a class="header_a" name="profil" href="profil.php">Profil</a></li> 
+                </ul>    -->
+            </nav>
+        </header>
+        <main id="main_la">
+            <div id="deplacement_form">
+                <form id="form_inscription" action="" method="post" name="login">
+                    <h2 id="h1_inscription">Connexion</h1><br>
+                        <input type="text" class="box-input" name="login" placeholder="Login" required><br>
+                        <input type="password" class="box-input" name="password" placeholder="Mot de passe" required><br><br>
+                        <input type="submit" value="Se connecter" name="submit" class="box_button"><br><br>
+                        <p class="box_register">Vous êtes nouveau ici? <a class="color_link" href="inscription.php">S'inscrire</a></p>
+                </form>
+            </div>
+        </main>
+        <footer id="footer_la">
+            <nav id="footer_nav">
+                <ul id="footer_ul">
+                    <h2 id="h2">Réseaux Sociaux</h2>
+                        <li><a href="https://twitter.com/home">Twitter</li>
+                        <li><a href="https://www.instagram.com/aik0sann/?hl=fr">Instagram</li>
+                        <li><a href="https://github.com/laura-rodriguez2/module-connexion">GitHub</li>
+                </ul>
+            </nav>
+        </footer>
+    </body>
 </html>
