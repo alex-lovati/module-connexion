@@ -1,112 +1,34 @@
 <?php
 session_start();
+$bdd = new PDO('mysql:host=localhost;dbname=moduleconnexion', 'root', '');
 
-error_reporting(E_ALL);
-ini_set('display_errors', '1');
+if(isset($_POST['submit'])){
+    $login = htmlspecialchars($_POST['login']);
+    $password = $_POST['password'];
 
-define('DB_SERVER', 'localhost');
-define('DB_USERNAME', 'root');
-define('DB_PASSWORD', '');
-define('DB_NAME', 'moduleconnexion');
-$mysqli = mysqli_connect(DB_SERVER, DB_USERNAME, DB_PASSWORD, DB_NAME);
+    if(!empty($login) AND !empty($password)){
+        $requeteutilisateur = $bdd->prepare("SELECT * FROM utilisateurs WHERE login = ?");
+        $requeteutilisateur->execute(array($login));
+        $result = $requeteutilisateur->fetchAll();
+                if (count($result) > 0){
+                    $sqlPassword = $result[0]['password'];
+                    if(password_verify($password, $sqlPassword)){
+                        $_SESSION['id'] = $result[0]['id'];
+                        $_SESSION['login'] = $result[0]['login'];
+                        $_SESSION['nom'] = $result[0]['nom'];
+                        $_SESSION['prenom'] = $result[0]['prenom'];
+                        header("Location: profil.php");   
+                    }
+                    else{ $erreur = "Mauvais login !"; }
+                }
+                    else{ $erreur = "Mauvais mot de passe !"; }
 
-if($mysqli === false){
-    die("ERREUR : Impossible de se connecter. " . mysqli_connect_error());
-}
-if(isset($_POST["submit"])) { 
-    $login = stripslashes($_REQUEST['login']);
-    $login = mysqli_real_escape_string($mysqli, $login); 
-    $password = stripslashes($_REQUEST['password']);
-    $password = mysqli_real_escape_string($mysqli, $password);
-            $requete = mysqli_query($mysqli,"SELECT login, password FROM utilisateurs WHERE login = '".$login."' and password='".hash('sha256', $password)."'");
-            $row = mysqli_fetch_assoc($requete); 
-
-            
-
-// Validation du formulaire
-if (isset($_POST['login']) &&  isset($_POST['password'])) {
-    foreach ($utilisateurs as $utilisateur) {
-        if (
-            $utilisateur['login'] === $_POST['login'] &&
-            $utilisateur['password'] === $_POST['password']
-        ) {
-            $loggedUser = [
-                'login' => $utilisateur['login'],
-            ];
-        } else {
-            $errorMessage = sprintf('Les informations envoyées ne permettent pas de vous identifier : (%s/%s)',
-                $_POST['login'],
-                $_POST['password']);
-        }
+                    if ($_SESSION['login'] == 'admin'){
+                        header("Location: admin.php");
+                    }
     }
-    var_dump($loggedUser);
+                    else{ $erreur = "Tous les champs doivent être remplis !"; }
 }
-}
-if(!isset($loggedUser)): ?>
-<form action="index.php" method="post">
-    <!-- si message d'erreur on l'affiche -->
-    <?php if(isset($errorMessage)) : ?>
-        <div class="alert alert-danger" role="alert">
-            <?php echo $errorMessage; ?>
-        </div>
-    <?php endif; ?>
-    <div class="mb-3">
-        <label for="login" class="header_a">login</label>
-        <input type="login" class="header_a" name="login" placeholder="login">
-        <div>Le login utilisé lors de la création de compte.</div>
-    </div>
-    <div class="mb-3">
-        <label for="password" class="header_a">Mot de passe</label>
-        <input type="password" class="header_a" id="password" name="password">
-    </div>
-    <button type="submit" class="box_button">Envoyer</button>
-</form>
-<!-- 
-    Si utilisateur/trice bien connectée on affiche un message de succès
--->
-<?php else: ?>
-    <div class="alert alert-success" role="alert">
-        Bonjour <?php echo $loggedUser['login']; ?> et bienvenue sur le site !
-    </div>
-<?php endif; ?>
-
-<?php
-/*
-form method post; action"";
-select => fetch =>count si 0=> good si1=>not good
-session['login']=$POST['login']
-c'est connecté normalement
-
-suite 
-
-connexion bdd = bon
-verifier si le login est present en bdd
-$login = $POST["user];
-$password=$POST["password;]
-if(isset $POST["login"] et $POST["password"]){      (en plus pour verifier)
-    echo ok ?
-}
-    if(isset($login)){    c'est mieux de mettre seulement isset login plutot que isset login ET isset mdp, permet d'avoir msg d'erreur plus clair
-        $req="SELECT * WHERE login=$login";
-        $req=mysqli_query($req);
-        $result=fetch assoc         (fetch pour que ça donne les numeros, fetch assoc pour les noms)
-        if(count($result=0)){
-            $mdpBDD=$result[0]["mdp]
-        }
-        if($mdp==mdpBDD){
-            $session["user]=$login
-            (on peut mettre d'autre variable de session comme $session["nom]=$nom)
-        }
-        else{
-            wrong mdp
-        }
-        else{
-            wrong login
-        }
-        }
-    }
-
-*/
 ?>
 <html>
     <head>
@@ -114,54 +36,28 @@ if(isset $POST["login"] et $POST["password"]){      (en plus pour verifier)
     <link rel="stylesheet" href="style.css" />
     </head>
     <body>
-        <header id="header_la">     
-            <h1 id="h1">Module de connexion</h1>
-            <nav id="header_nav">
-        <?php
-        if (!isset($_SESSION["login"])){?>
-            <!-- <button type= 'submit' name ='connexion' value = 'connexion' class='header_a'>Connexion</button> -->
-            <form method = 'POST' action = 'index.php'>   
-            <button type= 'submit' name ='profil' value = 'profil' class='header_a'>Profil</button>
-            <button type= 'submit' name ='deconnexion' value = 'deconnexion' class='header_a'>Déconnexion</button>
-                </form>
-        <?php }else { ?>
-            <li><p class='header_a'><a href='connexion.php'>Connexion</a></p></li>
-            <li><p class='header_a'><a href='inscription.php'>Inscription</a></p></li>
-            
-        
-        <?php } if(isset($_POST["deconnexion"])){
-        session_destroy() ;
-        header('location:index.php');
-        } 
-        ?>
-                <!-- <ul id="header_ul">
-                    <li><a class="header_a" href="index.php">Accueil</a>
-                    <li><a class="header_a" name="inscription" href="inscription.php">Inscription</a></li>
-                    <li><a class="header_a" name="connexion" href="connexion.php">Connexion</a></li> 
-                    <li><a class="header_a" name="profil" href="profil.php">Profil</a></li> 
-                </ul>    -->
-            </nav>
-        </header>
-        <main id="main_la">
-            <div id="deplacement_form">
-                <form id="form_inscription" action="" method="post" name="login">
-                    <h2 id="h1_inscription">Connexion</h1><br>
-                        <input type="text" class="box-input" name="login" placeholder="Login" required><br>
-                        <input type="password" class="box-input" name="password" placeholder="Mot de passe" required><br><br>
-                        <input type="submit" value="Se connecter" name="submit" class="box_button"><br><br>
-                        <p class="box_register">Vous êtes nouveau ici? <a class="color_link" href="inscription.php">S'inscrire</a></p>
-                </form>
-            </div>
-        </main>
-        <footer id="footer_la">
-            <nav id="footer_nav">
-                <ul id="footer_ul">
-                    <h2 id="h2">Réseaux Sociaux</h2>
-                        <li><a href="https://twitter.com/home">Twitter</li>
-                        <li><a href="https://www.instagram.com/aik0sann/?hl=fr">Instagram</li>
-                        <li><a href="https://github.com/laura-rodriguez2/module-connexion">GitHub</li>
-                </ul>
-            </nav>
-        </footer>
+    <header>
+            <nav id= "lehaut"><h1><a class=href href="index.php" title="Accueil">CitaJeux</a></h1></nav> &emsp;
+            <h2 id="conninscription"><a class= href href="inscription.php">Inscription</a> &emsp;
+            <a class= href href="connexion.php">Connexion</a></h2>
+    </header>
+    <main id="main_la">
+        <div id="deplacement_form">
+            <form id="form_inscription" action="" method="post" name="login">
+                <div style="color: yellow;"><?php
+                    if (isset($erreur)){
+                        echo $erreur;
+                    }
+                ?></div>
+                <h2 id="h1_inscription">Connexion</h1><br>
+                    <input type="text" class="box-input" name="login" placeholder="Login" required><br>
+                    <input type="password" class="box-input" name="password" placeholder="Mot de passe" required><br><br>
+                    <input type="submit" value="Se connecter" name="submit" class="box_button"><br><br>
+                <p class="box_register">Vous êtes nouveau ici? <a class="color_link" href="inscription.php">S'inscrire</a></p>
+            </form>
+        </div>
+    </main>
+    <footer>
+    </footer>
     </body>
 </html>

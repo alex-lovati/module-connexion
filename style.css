@@ -16,7 +16,8 @@ body{
   background-image: url(../module-connexion/image/1ec7071c640ac52978f4850da3c996a7.jpg);
   background-attachment: fixed; 
   background-size:cover;
-  background-color: black;
+  background-color: rgb(255, 255, 255);
+  opacity: 90%;
 }
 
 .href{
@@ -38,45 +39,12 @@ body{
   margin-left: 15%;
 }
 
-
 ::-webkit-scrollbar{
   width: 0px;
   height: 0px;
 }
-/* ::-webkit-scrollbar-button {
-  width: 300px;
-  height: 300px;
-}
-::-webkit-scrollbar-thumb {
-  background: #e1e1e1;
-  border: 31px none #ffffff;
-  border-radius: 5px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: #a1a1a1;
-}
-::-webkit-scrollbar-thumb:active {
-  background: #a3a3a3;
-}
-::-webkit-scrollbar-track {
-  background: #f0f0f0;
-  border: 1px solid #ffffff;
-  border-radius: 5px;
-}
-::-webkit-scrollbar-track:hover {
-  background: #f2f2f2;
-}
-::-webkit-scrollbar-track:active {
-  background: #f5f5f5;
-}
-::-webkit-scrollbar-corner {
-  background: transparent;
-} */
-#dmc{
-    width: 900%;
-    height: 100px;
-}
-.box-conn{
+
+/* .box-conn{
   text-align: center;
 }
 .box-button{
@@ -86,4 +54,51 @@ body{
   text-align:center;
   color:rgb(0, 0, 0);
   text-decoration:none;
-  }
+  } */
+
+  #deplacement_form{
+    display: flex;
+    justify-content: center;
+    padding-top: 10%;
+  
+}
+#form_inscription{
+    background-color: rgb(119, 91, 91);
+    padding: 3%;
+    border-radius: 40%;
+    font-size: 150%;
+    text-align: center;
+}
+.box-input{
+    padding: 1%;
+    margin: 5px;
+    font-size: 70%;
+}
+.box_button{
+    background-color: rgb(221, 193, 193);
+    border-radius: 20%;
+    font-size: 120%;
+    padding: 1%;
+}
+.color_link{
+    color: rgb(230, 138, 0);
+}
+#message_form{
+    text-align: center;
+    background-color: aqua;
+}
+
+
+
+#admin_main{
+  background-color: rgb(119, 91, 91);
+  padding: 3%;
+  border-radius: 40%;
+  font-size: 150%;
+  text-align: center;
+}
+#dispo{
+  font-size: 300%;
+  display: flex;
+  justify-content: center;
+}
