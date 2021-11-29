@@ -1,5 +1,6 @@
 <?php
-    $bdd = new PDO('mysql:host=localhost;dbname=moduleconnexion', 'root', '');
+// $bdd = new PDO('mysql:host=localhost;dbname=moduleconnexion', 'root', ''); 
+$bdd = new PDO('mysql:host=localhost;dbname=alex-lovati_moduleconnexion', 'alex', 'lovati');
         if (isset($_POST['submit'])){
             $erreur = "";
             $login = htmlspecialchars($_POST['login']);
